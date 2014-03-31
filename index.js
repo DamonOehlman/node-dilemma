@@ -1,5 +1,6 @@
 var debug = require('debug')('dilemma');
 var zmq = require('zmq');
+var uuid = require('uuid');
 
 /**
   # dilemma
@@ -26,19 +27,19 @@ module.exports = function(name) {
   return function(strategy, opts) {
     var host = (opts || {}).host || '127.0.0.1';
     var port = (opts || {}).port || 1441;
-    var socket = zmq.socket('req');
 
     function handleMessage(msgType) {
       var payload = [].slice.call(arguments, 1);
 
       switch (msgType.toString()) {
         case 'run': {
-
+          debug('received run');
+          break;
         }
 
         case 'end': {
           debug('received end, disconnecting socket');
-          socket.close();
+          this.close();
           break;
         }
 
@@ -48,14 +49,19 @@ module.exports = function(name) {
       }
     }
 
-    // connect
-    socket.connect('tcp://' + host + ':' + port);
-
-    // wait for the response
-    // socket.once('data', function())
-    socket.on('message', handleMessage);
-
     return function(target) {
+      var socket = zmq.socket('req');
+
+      // connect
+      socket.identity = 'dilemma-client:' + uuid.v4();
+      socket.connect('tcp://' + host + ':' + port);
+      debug('created client: ' + socket.identity);
+
+      // wait for the response
+      // socket.once('data', function())
+      socket.on('message', handleMessage);
+
+      debug('sending reg');
       // send the CHALLENGE message
       socket.send(['reg', name, target || 'any' ]);
     }

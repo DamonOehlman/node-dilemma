@@ -55,18 +55,15 @@ prot.processMessage = function(msgType) {
 
   switch (msgType.toString()) {
     case 'iterate': {
-      debug('received run');
-
-      setTimeout(function() {
-        socket.send([ 'upload' ]);
-      }, 1000);
+      debug('received iterate - emitting "exec" event');
+      this.emit('exec');
 
       break;
     }
 
     case 'end': {
       debug('received end, disconnecting socket');
-      this.close();
+      this.socket.close();
       break;
     }
 
@@ -74,5 +71,9 @@ prot.processMessage = function(msgType) {
       debug('received unknown message of type: ' + msgType, payload);
     }
   }
+};
+
+prot.submit = function(response) {
+  this.socket.send(['upload', response]);
 };
 

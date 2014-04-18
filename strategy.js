@@ -78,6 +78,6 @@ prot.processMessage = function(msgType) {
 };
 
 prot.submit = function(response) {
-  this.socket.send(['upload', response]);
+  this.socket.send(['result', response]);
 };
 

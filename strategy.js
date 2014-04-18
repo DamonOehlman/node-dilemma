@@ -15,7 +15,6 @@ function Strategy(opts) {
   // initialise members
   this.id = (opts || {}).id || uuid.v4();
   this.title = (opts || {}).title || '';
-  this.target = (opts || {}).target || 'any';
 
   // create the socket
   this.socket = zmq.socket('req');
@@ -42,8 +41,7 @@ prot.connect = function(host, port) {
   // send the CHALLENGE message
   this.socket.send([
     'reg',
-    this.title,
-    this.target
+    this.title
   ]);
 
   return this;
@@ -64,6 +62,12 @@ prot.processMessage = function(msgType) {
     case 'end': {
       debug('received end, disconnecting socket');
       this.socket.close();
+      break;
+    }
+
+    case 'ping': {
+      debug('received ping');
+      this.socket.send(['pong']);
       break;
     }
 

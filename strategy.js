@@ -48,13 +48,13 @@ prot.connect = function(host, port) {
 };
 
 prot.processMessage = function(msgType) {
-  var payload = [].slice.call(arguments, 1);
+  var payload = [].slice.call(arguments, 1).map(toString);
   var socket = this.socket;
 
   switch (msgType.toString()) {
     case 'iterate': {
-      debug('received iterate - emitting "exec" event');
-      this.emit('exec');
+      debug('received iterate - emitting "exec" event', payload[0], payload[0] === null);
+      this.emit('exec', payload[0]);
 
       break;
     }
@@ -80,4 +80,8 @@ prot.processMessage = function(msgType) {
 prot.submit = function(response) {
   this.socket.send(['result', response]);
 };
+
+function toString(val) {
+  return (val && typeof val.toString == 'function') ? val.toString() : val;
+}
 

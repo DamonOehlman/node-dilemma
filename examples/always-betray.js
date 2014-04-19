@@ -1,10 +1,5 @@
-var Strategy = require('../strategy');
-var strategy = new Strategy({
-  title: 'always-betray'
-});
+var dilemma = require('../');
 
-strategy
-  .connect()
-  .on('exec', function() {
-    this.submit('D')
-  });
+dilemma('always-betray', function(previousResult) {
+  this.send(['result', 'D']);
+});

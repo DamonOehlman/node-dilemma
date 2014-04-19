@@ -1,10 +1,5 @@
-var Strategy = require('../strategy');
-var strategy = new Strategy({
-  title: 'always-trust'
-});
+var dilemma = require('../');
 
-strategy
-  .connect()
-  .on('exec', function() {
-    this.submit('C')
-  });
+dilemma('always-trust', function(previousResult) {
+  this.send(['result', 'C']);
+});

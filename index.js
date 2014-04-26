@@ -1,6 +1,7 @@
 var debug = require('debug')('dilemma');
 var zmq = require('zmq');
 var uuid = require('uuid');
+var List = require('collections/list');
 
 /**
   # dilemma
@@ -25,6 +26,14 @@ var uuid = require('uuid');
 module.exports = function(strategyName, opts, runner) {
   // create the socket
   var socket = zmq.socket('req');
+  var results = createResults();
+
+  function createResults() {
+    return {
+      local: new List(),
+      opponent: new List()
+    };
+  }
 
   function getUri() {
     var host = (opts || {}).host || '127.0.0.1';
@@ -35,18 +44,24 @@ module.exports = function(strategyName, opts, runner) {
 
   function processMessage(msgType) {
     var payload = [].slice.call(arguments, 1).map(toString);
+    var response;
 
     switch (msgType.toString()) {
       case 'iterate': {
-        debug('received iterate - emitting "exec" event', payload[0], payload[0] === null);
-        runner.call(socket, payload[0]);
+        if (payload[0]) {
+          results.opponent.unshift(payload[0]);
+        }
+
+        socket.send([response = runner.call(socket, results)]);
+        results.local.unshift(response);
 
         break;
       }
 
-      case 'end': {
-        debug('received end, disconnecting socket');
-        socket.close();
+      case 'reset': {
+        debug('received reset');
+        results = createResults();
+        socket.send(['ok']);
         break;
       }
 
@@ -74,7 +89,7 @@ module.exports = function(strategyName, opts, runner) {
   }
 
   // init the socket identity
-  socket.identity = 'dilemma-client:' + ((opts || {}).id || uuid.v4());
+//   socket.identity = 'dilemma-client:' + ((opts || {}).id || uuid.v4());
   debug('created client: ' + socket.identity);
 
   // route messages to the processMessage

@@ -1,5 +1,5 @@
 var dilemma = require('../');
 
-dilemma('always-betray', function(previousResult) {
-  this.send(['result', 'D']);
+dilemma('always-betray', function() {
+  return 'D';
 });

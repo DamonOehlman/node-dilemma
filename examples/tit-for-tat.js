@@ -4,8 +4,8 @@ function randomResult() {
   return ['C', 'D'][(Math.random() * 2) | 0];
 }
 
-dilemma('tit-for-tat', function(results) {
+dilemma('tit-for-tat', function(results, callback) {
   var opponentPrevious = results.opponent.one();
 
-  return opponentPrevious ? opponentPrevious : randomResult();
+  return callback(null, opponentPrevious ? opponentPrevious : randomResult());
 });

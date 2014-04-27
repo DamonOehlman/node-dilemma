@@ -1,5 +1,5 @@
 var dilemma = require('../');
 
-dilemma('always-betray', function() {
-  return 'D';
+dilemma('always-betray', function(results, callback) {
+  callback(null, 'D');
 });

@@ -42,19 +42,28 @@ module.exports = function(strategyName, opts, runner) {
     return 'tcp://' + host + ':' + port;
   }
 
+  function iterate(lastOpponentResult) {
+    if (lastOpponentResult) {
+      results.opponent.unshift(lastOpponentResult);
+    }
+
+    runner(results, function(err, result) {
+      if (err) {
+        return socket.send(['error']);
+      }
+
+      socket.send([result]);
+      results.local.unshift(result);
+    });
+  }
+
   function processMessage(msgType) {
     var payload = [].slice.call(arguments, 1).map(toString);
     var response;
 
     switch (msgType.toString()) {
       case 'iterate': {
-        if (payload[0]) {
-          results.opponent.unshift(payload[0]);
-        }
-
-        socket.send([response = runner.call(socket, results)]);
-        results.local.unshift(response);
-
+        iterate(payload[0]);
         break;
       }
 

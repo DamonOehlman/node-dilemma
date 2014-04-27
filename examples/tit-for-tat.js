@@ -5,7 +5,7 @@ function randomResult() {
 }
 
 dilemma('tit-for-tat', function(results, callback) {
-  var opponentPrevious = results.opponent.one();
+  var opponentPrevious = results.opponent[0];
 
   return callback(null, opponentPrevious ? opponentPrevious : randomResult());
 });

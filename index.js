@@ -30,13 +30,13 @@ module.exports = function(strategyName, opts, runner) {
 
   function createResults() {
     return {
-      local: new List(),
-      opponent: new List()
+      local: [],
+      opponent: []
     };
   }
 
   function getUri() {
-    var host = (opts || {}).host || '127.0.0.1';
+    var host = (opts || {}).server || '127.0.0.1';
     var port = (opts || {}).port || 1441;
 
     return 'tcp://' + host + ':' + port;

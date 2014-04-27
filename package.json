@@ -1,6 +1,6 @@
 {
   "name": "dilemma",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "A small CLI application for running a prisoners dilemma strategy using stdio and posting the result to a dilemma-server",
   "main": "index.js",
   "bin": {

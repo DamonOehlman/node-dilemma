@@ -3,6 +3,9 @@
   "version": "0.0.0",
   "description": "A small CLI application for running a prisoners dilemma strategy using stdio and posting the result to a dilemma-server",
   "main": "index.js",
+  "bin": {
+    "dilemma": "./cli.js"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "gendocs": "gendocs > README.md"
@@ -26,6 +29,7 @@
     "zmq": "^2.6.0",
     "debug": "^0.7.4",
     "uuid": "^1.4.1",
-    "collections": "^1.1.0"
+    "collections": "^1.1.0",
+    "out": "^0.5.4"
   }
 }

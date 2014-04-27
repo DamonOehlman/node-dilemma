@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 var debug = require('debug')('dilemma:cli');
 var nopt = require('nopt');
-var dilemma = require('./index.js');
+var dilemma = require('../index.js');
 var out = require('out');
 var missingKeys = [];
 var requiredKeys = ['name', 'runner'];

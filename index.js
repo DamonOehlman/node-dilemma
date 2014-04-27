@@ -52,7 +52,7 @@ module.exports = function(strategyName, opts, runner) {
         return socket.send(['error']);
       }
 
-      socket.send([result]);
+      socket.send(['result', result]);
       results.local.unshift(result);
     });
   }
@@ -70,7 +70,7 @@ module.exports = function(strategyName, opts, runner) {
       case 'reset': {
         debug('received reset');
         results = createResults();
-        socket.send(['ok']);
+        socket.send(['reset:ok']);
         break;
       }
 

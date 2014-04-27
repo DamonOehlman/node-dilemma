@@ -1,2 +1,89 @@
+#!/usr/bin/env node
+var debug = require('debug')('dilemma:cli');
 var nopt = require('nopt');
 var dilemma = require('./index.js');
+var out = require('out');
+var missingKeys = [];
+var requiredKeys = ['name', 'runner'];
+var spawn = require('child_process').spawn;
+var EOL = require('os').EOL;
+
+var knownOpts = {
+  name: String,
+  runner: String,
+  server: String,
+  port: Number
+};
+
+var shorthands = {
+  h: 'host',
+  p: 'port'
+};
+
+var hints = {
+  name: '<strategy-name>',
+  server: '<server:localhost>',
+  port: '<port:1441>',
+  runner: '<full command to execute your strategy runner>'
+};
+
+var parsed = nopt(knownOpts, shorthands, process.argv, 2);
+
+function displayUsage(missing) {
+  out([' dilemma'].concat(Object.keys(knownOpts).map(optHelp(missing))).join(' \\\n   ') + '\n');
+}
+
+function optHelp(missing) {
+  missing = [].concat(missing || []);
+
+  return function(key) {
+    var isMissing = missing.indexOf(key) >= 0;
+
+    return [
+      isMissing ? '!{bold}' : '',
+      '--',
+      key,
+      '=',
+      hints[key] || '<' + key + '>',
+      '!{}'
+    ].join('');
+  }
+};
+
+missingKeys = requiredKeys.filter(function(key) {
+  return parsed[key] === undefined;
+});
+
+// if we have no name, then report usage information
+if (missingKeys.length) {
+  out('\n !{red}Missing required options:!{}\n');
+
+  return displayUsage(missingKeys);
+}
+
+dilemma(parsed.name, parsed, function(results, callback) {
+  var parts = parsed.runner.split(/\s/);
+  var proc = spawn(parts[0], parts.slice(1), { stdio: 'pipe' });
+  var response = '';
+
+  proc.stdout.on('data', function(data) {
+    response = data.toString().charAt(0);
+  });
+
+  // write the result pieces to the stdin of the child process
+  proc.stdin.write(results.opponent.join('') + EOL);
+  proc.stdin.write(results.local.join('') + EOL);
+  proc.stdin.on('error', function(err) {
+    debug('error writing to stdin of the runner: ', err);
+  });
+
+  proc.on('error', function(err) {
+    debug('error encountered spawning runner: ', err);
+  });
+
+  // when the process has closed, report the result
+  proc.on('close', function() {
+    debug('runner terminated, sending response: ' + response);
+    callback(null, response);
+  });
+});
